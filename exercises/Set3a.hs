@@ -105,7 +105,11 @@ palindrome x = x == reverse x
 --   capitalize "goodbye cruel world" ==> "Goodbye Cruel World"
 
 capitalize :: String -> String
-capitalize = todo
+capitalize x = unwords $ map capitalizeFirst $ words x
+
+capitalizeFirst :: String -> String
+capitalizeFirst (x:xs) = [toUpper x] ++ xs
+capitalizeFirst [] = []
 
 ------------------------------------------------------------------------------
 -- Ex 6: powers k max should return all the powers of k that are less
@@ -122,7 +126,7 @@ capitalize = todo
 --   * the function takeWhile
 
 powers :: Int -> Int -> [Int]
-powers k max = todo
+powers k max = takeWhile (<= max) [ k^i | i <- [0..max]]
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement a functional while loop. While should be a function
@@ -145,7 +149,9 @@ powers k max = todo
 --     ==> Avvt
 
 while :: (a->Bool) -> (a->a) -> a -> a
-while check update value = todo
+while check update value
+  | check value = while check update $ update value
+  | otherwise = value
 
 ------------------------------------------------------------------------------
 -- Ex 8: another version of a while loop. This time, the check
@@ -165,7 +171,8 @@ while check update value = todo
 -- Hint! Remember the case-of expression from lecture 2.
 
 whileRight :: (a -> Either b a) -> a -> b
-whileRight check x = todo
+whileRight check x = case check x of Right value -> whileRight check value
+                                     Left value -> value
 
 -- for the whileRight examples:
 -- step k x doubles x if it's less than k
@@ -189,7 +196,7 @@ bomb x = Right (x-1)
 -- Hint! This is a great use for list comprehensions
 
 joinToLength :: Int -> [String] -> [String]
-joinToLength = todo
+joinToLength len input = filter (\x -> length x == len) [ i1 ++ i2 | i1 <- input, i2 <- input]
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the operator +|+ that returns a list with the first
@@ -203,6 +210,11 @@ joinToLength = todo
 --   [] +|+ [True]        ==> [True]
 --   [] +|+ []            ==> []
 
+(+|+) :: [a] -> [a] -> [a]
+(+|+) (x:_) (y:_) = [x] ++ [y]
+(+|+) [] (y:_) = [y]
+(+|+) (x:_) [] = [x]
+(+|+) [] [] = []
 
 ------------------------------------------------------------------------------
 -- Ex 11: remember the lectureParticipants example from Lecture 2? We
@@ -219,7 +231,8 @@ joinToLength = todo
 --   sumRights [Left "bad!", Left "missing"]         ==>  0
 
 sumRights :: [Either a Int] -> Int
-sumRights = todo
+sumRights x = sum $ map composed x
+  where composed = either (\_ -> 0) (\y -> y)
 
 ------------------------------------------------------------------------------
 -- Ex 12: recall the binary function composition operation
