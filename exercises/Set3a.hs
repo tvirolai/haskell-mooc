@@ -248,7 +248,10 @@ sumRights x = sum $ map composed x
 --   multiCompose [(3*), (2^), (+1)] 0 ==> 6
 --   multiCompose [(+1), (2^), (3*)] 0 ==> 2
 
-multiCompose fs = todo
+multiCompose :: [(a -> a)] -> a -> a
+multiCompose [] x = x
+multiCompose [f] x = f x
+multiCompose (f:s:rst) x = multiCompose ([(f . s)] ++ rst) x
 
 ------------------------------------------------------------------------------
 -- Ex 13: let's consider another way to compose multiple functions. Given
@@ -269,7 +272,9 @@ multiCompose fs = todo
 --   multiApp id [head, (!!2), last] "axbxc" ==> ['a','b','c'] i.e. "abc"
 --   multiApp sum [head, (!!2), last] [1,9,2,9,3] ==> 6
 
-multiApp = todo
+multiApp :: ([b] -> t) -> [p -> b] -> p -> t
+multiApp f gs x = f res
+ where res = map (\fn -> fn x) gs
 
 ------------------------------------------------------------------------------
 -- Ex 14: in this exercise you get to implement an interpreter for a
@@ -304,4 +309,14 @@ multiApp = todo
 -- function, the surprise won't work. See section 3.8 in the material.
 
 interpreter :: [String] -> [String]
-interpreter commands = todo
+interpreter commands = interpreter' commands 0 0
+
+interpreter' :: [String] -> Integer -> Integer -> [String]
+interpreter' [] _ _ = []
+interpreter' (cmd:cmds) x y = case cmd of "up" -> interpreter' cmds x (y+1)
+                                          "down" -> interpreter' cmds x (y-1)
+                                          "left" -> interpreter' cmds (x-1) y
+                                          "right" -> interpreter' cmds (x+1) y
+                                          "printX" -> show x : interpreter' cmds x y
+                                          "printY" -> show y : interpreter' cmds x y
+                                          _ -> "DIU DAU" : interpreter' cmds x y
