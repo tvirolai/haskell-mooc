@@ -122,7 +122,10 @@ sorted (x:y:rst) = if x > y then False else sorted (y:rst)
 -- Use pattern matching and recursion (and the list constructors : and [])
 
 sumsOf :: [Int] -> [Int]
-sumsOf xs = todo
+sumsOf [] = []
+sumsOf [x] = [x]
+sumsOf (x:y:[]) = [x, x+y]
+sumsOf (x:y:zs) = x:(sumsOf ((x+y):zs))
 
 ------------------------------------------------------------------------------
 -- Ex 7: implement the function merge that merges two sorted lists of
@@ -135,7 +138,16 @@ sumsOf xs = todo
 --   merge [1,1,6] [1,2]   ==> [1,1,1,2,6]
 
 merge :: [Int] -> [Int] -> [Int]
-merge xs ys = todo
+merge xs [] = xs
+merge xs (y:ys) = merge (insert xs y) ys
+
+insert :: [Int] -> Int -> [Int]
+insert [] itm = [itm]
+insert [x] itm = if x < itm then x:[itm] else itm:[x]
+insert (x:xx:xs) itm
+ | itm < x = itm:x:xx:xs
+ | x < itm && xx >= itm = x:itm:xx:xs
+ | otherwise = x:(insert (xx:xs) itm)
 
 ------------------------------------------------------------------------------
 -- Ex 8: compute the biggest element, using a comparison function
