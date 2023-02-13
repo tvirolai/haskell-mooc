@@ -186,7 +186,11 @@ mymaximum bigger initial (x:xs) = mymaximum bigger (if bigger x initial then x e
 -- Use recursion and pattern matching. Do not use any library functions.
 
 map2 :: (a -> b -> c) -> [a] -> [b] -> [c]
-map2 f as bs = todo
+map2 _ [] _ = []
+map2 _ _ [] = []
+map2 f (a:as) (b:bs) = res:(map2 f as bs)
+  where res = f a b
+
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the function maybeMap, which works a bit like a
@@ -210,4 +214,8 @@ map2 f as bs = todo
 --   ==> []
 
 maybeMap :: (a -> Maybe b) -> [a] -> [b]
-maybeMap f xs = todo
+maybeMap _ [] = []
+maybeMap f (x:[]) = case f x of Just res -> [res]
+                                Nothing -> []
+maybeMap f (x:xs) = case f x of Just res -> res:(maybeMap f xs)
+                                Nothing -> (maybeMap f xs)
