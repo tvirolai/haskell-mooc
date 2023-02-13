@@ -171,7 +171,8 @@ insert (x:xx:xs) itm
 --     ==> ("Mouse",8)
 
 mymaximum :: (a -> a -> Bool) -> a -> [a] -> a
-mymaximum bigger initial xs = todo
+mymaximum _ initial [] = initial
+mymaximum bigger initial (x:xs) = mymaximum bigger (if bigger x initial then x else initial) xs
 
 ------------------------------------------------------------------------------
 -- Ex 9: define a version of map that takes a two-argument function
