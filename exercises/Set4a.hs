@@ -102,7 +102,10 @@ rangeOf x = (last tl) - hd
 --   longest [[1,2,3],[4,5],[6]] ==> [1,2,3]
 --   longest ["bcd","def","ab"] ==> "bcd"
 
-longest = todo
+longest :: Ord a => [[a]] -> [a]
+longest a = y
+  where maxlen = maximum $ map length a
+        (y:_) = sort $ filter (\x -> length x == maxlen) a
 
 ------------------------------------------------------------------------------
 -- Ex 6: Implement the function incrementKey, that takes a list of
