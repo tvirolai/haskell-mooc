@@ -173,7 +173,7 @@ winner scores player1 player2 = if p2score > p1score then player2 else player1
 --     ==> Map.fromList [(False,3),(True,1)]
 
 freqs :: (Eq a, Ord a) => [a] -> Map.Map a Int
-freqs xs = todo
+freqs xs = Map.fromListWith (+) $ map (\x -> (x, 1)) xs
 
 ------------------------------------------------------------------------------
 -- Ex 10: recall the withdraw example from the course material. Write a
@@ -201,7 +201,27 @@ freqs xs = todo
 --     ==> fromList [("Bob",100),("Mike",50)]
 
 transfer :: String -> String -> Int -> Map.Map String Int -> Map.Map String Int
-transfer from to amount bank = todo
+transfer from to amount bank
+  | Map.notMember from bank = bank
+  | Map.notMember to bank = bank
+  | amount < 0 = bank
+  | otherwise = case Map.lookup from bank of
+      Nothing -> bank
+      Just sum -> if sum < amount
+        then bank
+        else insertto to amount $ withdraw from amount bank
+
+withdraw :: String -> Int -> Map.Map String Int -> Map.Map String Int
+withdraw account amount bank =
+  case Map.lookup account bank of
+    Nothing  -> bank
+    Just sum -> Map.insert account (sum-amount) bank
+
+insertto :: String -> Int -> Map.Map String Int -> Map.Map String Int
+insertto account amount bank =
+  case Map.lookup account bank of
+    Nothing  -> bank
+    Just sum -> Map.insert account (sum+amount) bank
 
 ------------------------------------------------------------------------------
 -- Ex 11: given an Array and two indices, swap the elements in the indices.
@@ -222,4 +242,4 @@ swap i j arr = todo
 -- Hint: check out Data.Array.indices or Data.Array.assocs
 
 maxIndex :: (Ix i, Ord a) => Array i a -> i
-maxIndex = todo
+maxIndex arr = todo
