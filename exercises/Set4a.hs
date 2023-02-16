@@ -231,7 +231,9 @@ insertto account amount bank =
 --         ==> array (1,4) [(1,"one"),(2,"three"),(3,"two"),(4,"four")]
 
 swap :: Ix i => i -> i -> Array i a -> Array i a
-swap i j arr = todo
+swap i j arr = arr // [(j, v1), (i, v2)]
+  where v1 = arr ! i
+        v2 = arr ! j
 
 ------------------------------------------------------------------------------
 -- Ex 12: given an Array, find the index of the largest element. You
@@ -242,4 +244,6 @@ swap i j arr = todo
 -- Hint: check out Data.Array.indices or Data.Array.assocs
 
 maxIndex :: (Ix i, Ord a) => Array i a -> i
-maxIndex arr = todo
+maxIndex arr = k
+  where maxelem = last $ sort $ Data.Array.elems arr
+        [(k, _)] = filter (\(_, y) -> y == maxelem) $ Data.Array.assocs arr
