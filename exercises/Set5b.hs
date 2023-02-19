@@ -110,7 +110,8 @@ mapTree f (Node v l r) = Node (f v) (mapTree f l) (mapTree f r)
 --                 (Node 3 Empty Empty))
 
 cull :: Eq a => a -> Tree a -> Tree a
-cull val tree = todo
+cull _ Empty = Empty
+cull val (Node v l r) = if v == val then Empty else Node v (cull val l) (cull val r)
 
 ------------------------------------------------------------------------------
 -- Ex 7: check if a tree is ordered. A tree is ordered if:
@@ -152,7 +153,11 @@ cull val tree = todo
 --                     (Node 3 Empty Empty))   ==>   True
 
 isOrdered :: Ord a => Tree a -> Bool
-isOrdered = todo
+isOrdered Empty = True
+isOrdered (Node v l r) = allValues (v>) l
+  && allValues (v<) r
+  && isOrdered l
+  && isOrdered r
 
 ------------------------------------------------------------------------------
 -- Ex 8: a path in a tree can be represented as a list of steps that
@@ -171,7 +176,10 @@ data Step = StepL | StepR
 --   walk [StepL,StepL] (Node 1 (Node 2 Empty Empty) Empty)  ==>  Nothing
 
 walk :: [Step] -> Tree a -> Maybe a
-walk = todo
+walk _ Empty = Nothing
+walk [] (Node v _ _) = Just v
+walk (StepL:xs) (Node _ l _) = walk xs l
+walk (StepR:xs) (Node _ _ r) = walk xs r
 
 ------------------------------------------------------------------------------
 -- Ex 9: given a tree, a path and a value, set the value at the end of
@@ -192,7 +200,10 @@ walk = todo
 --   set [StepL,StepR] 1 (Node 0 Empty Empty)  ==>  (Node 0 Empty Empty)
 
 set :: [Step] -> a -> Tree a -> Tree a
-set path val tree = todo
+set [] val (Node _ l r) = Node val l r
+set _ _ Empty = Empty
+set (StepL:xs) val (Node v l r) = Node v (set xs val l) r
+set (StepR:xs) val (Node v l r) = Node v l (set xs val r)
 
 ------------------------------------------------------------------------------
 -- Ex 10: given a value and a tree, return a path that goes from the
@@ -208,4 +219,12 @@ set path val tree = todo
 --                    (Node 5 Empty Empty))                     ==>  Just [StepL,StepR]
 
 search :: Eq a => a -> Tree a -> Maybe [Step]
-search = todo
+search _ Empty = Nothing
+search val (Node v l r)
+  | val == v = Just []
+  | search val l == Nothing = case (search val r) of Just [] -> Just [StepR]
+                                                     Just xs -> Just (StepR:xs)
+                                                     Nothing -> Nothing
+  | otherwise = case (search val l) of Nothing -> Nothing
+                                       Just [] -> Just [StepL]
+                                       Just xs -> Just (StepL:xs)
