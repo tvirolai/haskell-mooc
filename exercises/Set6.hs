@@ -167,7 +167,7 @@ data RationalNumber = RationalNumber Integer Integer
   deriving Show
 
 instance Eq RationalNumber where
-  p == q = todo
+  (RationalNumber a b) == (RationalNumber c d) = a * d == b * c
 
 ------------------------------------------------------------------------------
 -- Ex 9: implement the function simplify, which simplifies a rational
@@ -187,7 +187,8 @@ instance Eq RationalNumber where
 -- Hint: Remember the function gcd?
 
 simplify :: RationalNumber -> RationalNumber
-simplify p = todo
+simplify (RationalNumber a b) = RationalNumber (div a d) (div b d)
+  where d = gcd a b
 
 ------------------------------------------------------------------------------
 -- Ex 10: implement the typeclass Num for RationalNumber. The results
@@ -208,12 +209,22 @@ simplify p = todo
 --   signum (RationalNumber 0 2)             ==> RationalNumber 0 1
 
 instance Num RationalNumber where
-  p + q = todo
-  p * q = todo
-  abs q = todo
-  signum q = todo
-  fromInteger x = todo
-  negate q = todo
+  (RationalNumber a b) + (RationalNumber c d)
+   | b == d = simplify (RationalNumber (a+c) b)
+   | c == 0 = simplify (RationalNumber a b)
+   | a == 0 = (RationalNumber c d) + (RationalNumber a b)
+   | b > d =
+     let factor = (div b d)
+     in simplify (RationalNumber (factor * a + c) b)
+   | otherwise = (RationalNumber c d) + (RationalNumber a b)
+  (RationalNumber a b) * (RationalNumber c d) = simplify (RationalNumber (a*c) (b*d))
+  abs (RationalNumber a b) = RationalNumber (abs a) (abs b)
+  signum (RationalNumber a _)
+   | a < 0 = RationalNumber (-1) 1
+   | a > 0 = RationalNumber 1 1
+   | otherwise = RationalNumber 0 1
+  fromInteger x = RationalNumber x 1
+  negate (RationalNumber a b) = RationalNumber (a * (-1)) b
 
 ------------------------------------------------------------------------------
 -- Ex 11: a class for adding things. Define a class Addable with a
