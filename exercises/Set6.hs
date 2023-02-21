@@ -112,6 +112,12 @@ instance Price Milk where
 -- price [Just ChocolateEgg, Nothing, Just ChickenEgg]  ==> 50
 -- price [Nothing, Nothing, Just (Milk 1), Just (Milk 2)]  ==> 45
 
+instance Price a => Price (Maybe a) where
+  price Nothing = 0
+  price (Just a) = price a
+
+instance Price a => Price [a] where
+  price xs = sum (map price xs)
 
 ------------------------------------------------------------------------------
 -- Ex 7: below you'll find the datatype Number, which is either an
@@ -123,6 +129,19 @@ instance Price Milk where
 data Number = Finite Integer | Infinite
   deriving (Show,Eq)
 
+instance Ord Number where
+  compare (Finite _) Infinite = LT
+  compare Infinite (Finite _) = GT
+  compare Infinite Infinite = EQ
+  compare (Finite a) (Finite b) = compare a b
+  (<=) x y = compare x y /= GT
+  (<) x y = compare x y == LT
+  (>=) x y = compare x y /= LT
+  (>) x y = compare x y == GT
+  max x y | x <= y = y
+          | otherwise = x
+  min x y | x <= y = x
+          | otherwise = y
 
 ------------------------------------------------------------------------------
 -- Ex 8: rational numbers have a numerator and a denominator that are
