@@ -90,6 +90,7 @@ instance Eq a => Eq (List a) where
 
 data Egg = ChickenEgg | ChocolateEgg
   deriving Show
+
 data Milk = Milk Int -- amount in litres
   deriving Show
 

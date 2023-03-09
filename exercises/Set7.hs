@@ -102,10 +102,25 @@ add x (Set (y:ys))
 data Event = AddEggs | AddFlour | AddSugar | Mix | Bake
   deriving (Eq,Show)
 
-data State = Start | Error | Finished
+data State = Start | Error | Finished | EggsAdded | FlourAdded | SugarAdded | SugarAndFlourAdded | Mixed
   deriving (Eq,Show)
 
-step = todo
+step :: State -> Event -> State
+step Start AddEggs = EggsAdded
+step Start _ = Error
+step EggsAdded AddFlour = FlourAdded
+step EggsAdded AddSugar = SugarAdded
+step EggsAdded _ = Error
+step SugarAdded AddFlour = SugarAndFlourAdded
+step SugarAdded _ = Error
+step FlourAdded AddSugar = SugarAndFlourAdded
+step SugarAndFlourAdded Mix = Mixed
+step SugarAndFlourAdded _ = Error
+step FlourAdded _ = Error
+step Mixed Bake = Finished
+step Mixed _ = Error
+step Finished _ = Finished
+step Error _ = Error
 
 -- do not edit this
 bake :: [Event] -> State
