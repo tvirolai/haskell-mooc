@@ -211,29 +211,41 @@ instance Ord a => Monoid (Set a) where
 
 data Operation1 = Add1 Int Int
                 | Subtract1 Int Int
+                | Multiply1 Int Int
   deriving Show
 
 compute1 :: Operation1 -> Int
 compute1 (Add1 i j) = i+j
 compute1 (Subtract1 i j) = i-j
+compute1 (Multiply1 i j) = i*j
 
 show1 :: Operation1 -> String
-show1 = todo
+show1 (Add1 i j) = show i ++ "+" ++ show j
+show1 (Subtract1 i j) = show i ++ "-" ++ show j
+show1 (Multiply1 i j) = show i ++ "*" ++ show j
 
 data Add2 = Add2 Int Int
   deriving Show
 data Subtract2 = Subtract2 Int Int
   deriving Show
+data Multiply2 = Multiply2 Int Int
+  deriving Show
 
 class Operation2 op where
   compute2 :: op -> Int
+  show2 :: op -> String
 
 instance Operation2 Add2 where
   compute2 (Add2 i j) = i+j
+  show2 (Add2 i j) = show i ++ "+" ++ show j
 
 instance Operation2 Subtract2 where
   compute2 (Subtract2 i j) = i-j
+  show2 (Subtract2 i j) = show i ++ "-" ++ show j
 
+instance Operation2 Multiply2 where
+  compute2 (Multiply2 i j) = i*j
+  show2 (Multiply2 i j) = show i ++ "*" ++ show j
 
 ------------------------------------------------------------------------------
 -- Ex 9: validating passwords. Below you'll find a type
@@ -262,7 +274,15 @@ data PasswordRequirement =
   deriving Show
 
 passwordAllowed :: String -> PasswordRequirement -> Bool
-passwordAllowed = todo
+passwordAllowed x (MinimumLength l) = length x >= l
+passwordAllowed x (ContainsSome s) =
+  let hits = map (\c -> elem c s) x
+  in elem True hits
+passwordAllowed x (DoesNotContain s) =
+  let hits = map (\c -> elem c s) x
+  in (elem True hits) == False
+passwordAllowed x (And r1 r2) = passwordAllowed x r1 && passwordAllowed x r2
+passwordAllowed x (Or r1 r2) = passwordAllowed x r1 || passwordAllowed x r2
 
 ------------------------------------------------------------------------------
 -- Ex 10: a DSL for simple arithmetic expressions with addition and
@@ -284,17 +304,25 @@ passwordAllowed = todo
 --     ==> "(3*(1+1))"
 --
 
-data Arithmetic = Todo
+data Arithmetic = MakeArithmetic Integer
+  | Addition Arithmetic Arithmetic
+  | Multiplication Arithmetic Arithmetic
   deriving Show
 
 literal :: Integer -> Arithmetic
-literal = todo
+literal x = MakeArithmetic x
 
 operation :: String -> Arithmetic -> Arithmetic -> Arithmetic
-operation = todo
+operation "+" arit1 arit2 = Addition arit1 arit2
+operation "*" arit1 arit2 = Multiplication arit1 arit2
+operation _ _ _ = MakeArithmetic 0
 
 evaluate :: Arithmetic -> Integer
-evaluate = todo
+evaluate (MakeArithmetic x) = x
+evaluate (Addition arit1 arit2) = (evaluate arit1) + (evaluate arit2)
+evaluate (Multiplication arit1 arit2) = (evaluate arit1) * (evaluate arit2)
 
 render :: Arithmetic -> String
-render = todo
+render (MakeArithmetic x) = show x
+render (Addition arit1 arit2) = "(" ++ (render arit1) ++ "+" ++ (render arit2) ++ ")"
+render (Multiplication arit1 arit2) = "(" ++ (render arit1) ++ "*" ++ (render arit2) ++ ")"
