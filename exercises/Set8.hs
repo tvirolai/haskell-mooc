@@ -108,6 +108,10 @@ colorToHex (Color r g b) = showHex r ++ showHex g ++ showHex b
 
 getPixel :: Picture -> Int -> Int -> String
 getPixel (Picture f) x y = colorToHex (f (Coord x y))
+
+getColor :: Picture -> Int -> Int -> Color
+getColor (Picture f) x y = f (Coord x y)
+
 renderList :: Picture -> (Int,Int) -> (Int,Int) -> [[String]]
 renderList picture (minx,maxx) (miny,maxy) =
   [[getPixel picture x y | x <- [minx..maxx]] | y <- [miny..maxy]]
@@ -284,7 +288,14 @@ exampleSnowman = fill white snowman
 --        ["000000","000000","000000"]]
 
 paintSolid :: Color -> Shape -> Picture -> Picture
-paintSolid color shape base = todo
+paintSolid fillColor topShape bgImage = Picture f
+  where f (Coord x y) | contains topShape x y = fillColor
+                      | otherwise = getColor bgImage x y
+
+-- tuloskuva on funktio, joka ottaa koordinaatin ja palauttaa värin (kuten muutenkin).
+-- Jos pikseli osuu argumenttina saatuun Shapeen, niin palautetaan argumenttina saatu väri.
+-- Jos ei, palautetaan taustakuvan väri kyseisestä koordinaatista.
+
 ------------------------------------------------------------------------------
 
 allWhite :: Picture
@@ -329,7 +340,9 @@ stripes a b = Picture f
 --       ["000000","000000","000000","000000","000000"]]
 
 paint :: Picture -> Shape -> Picture -> Picture
-paint pat shape base = todo
+paint pat shape base = Picture f
+  where f (Coord x y) | contains shape x y = getColor pat x y
+                      | otherwise = getColor base x y
 ------------------------------------------------------------------------------
 
 -- Here's a patterned version of the snowman example. See it by running:
@@ -392,19 +405,28 @@ xy = Picture f
 data Fill = Fill Color
 
 instance Transform Fill where
-  apply = todo
+  apply (Fill col) _ = Picture f
+     where f (Coord _ _) = col
 
 data Zoom = Zoom Int
   deriving Show
 
 instance Transform Zoom where
-  apply = todo
+  apply (Zoom z) picture = zoom z picture
 
 data Flip = FlipX | FlipY | FlipXY
   deriving Show
 
+flipCoordX :: Coord -> Coord
+flipCoordX (Coord x y) = Coord (-x) y
+
+flipCoordY :: Coord -> Coord
+flipCoordY (Coord x y) = Coord x (-y)
+
 instance Transform Flip where
-  apply = todo
+  apply FlipX (Picture p) = Picture (p . flipCoordX)
+  apply FlipY (Picture p) = Picture (p . flipCoordY)
+  apply FlipXY picture = flipXY picture
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
@@ -419,8 +441,8 @@ instance Transform Flip where
 data Chain a b = Chain a b
   deriving Show
 
-instance Transform (Chain a b) where
-  apply = todo
+instance (Transform a, Transform b) => Transform (Chain a b) where
+  apply (Chain t1 t2) img = apply t1 (apply t2 img)
 ------------------------------------------------------------------------------
 
 -- Now we can redefine largeVerticalStripes using the above Transforms.
