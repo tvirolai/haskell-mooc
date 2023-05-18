@@ -26,7 +26,11 @@ import Mooc.Todo
 -- Otherwise return "Ok."
 
 workload :: Int -> Int -> String
-workload nExercises hoursPerExercise = todo
+workload nExercises hoursPerExercise
+  | total > 100 = "Holy moly!"
+  | total < 10 = "Piece of cake!"
+  | otherwise = "Ok."
+  where total = nExercises * hoursPerExercise
 
 ------------------------------------------------------------------------------
 -- Ex 2: Implement the function echo that builds a string like this:
@@ -39,7 +43,8 @@ workload nExercises hoursPerExercise = todo
 -- Hint: use recursion
 
 echo :: String -> String
-echo = todo
+echo [] = ""
+echo (x:xs) = x:xs ++ ", " ++ echo xs
 
 ------------------------------------------------------------------------------
 -- Ex 3: A country issues some banknotes. The banknotes have a serial
@@ -51,8 +56,12 @@ echo = todo
 -- Given a list of bank note serial numbers (strings), count how many
 -- are valid.
 
+isValid :: String -> Bool
+isValid (_:_:c:d:e:f:_) = c == e || d == f
+isValid _ = False
+
 countValid :: [String] -> Int
-countValid = todo
+countValid notes = length $ filter isValid notes
 
 ------------------------------------------------------------------------------
 -- Ex 4: Find the first element that repeats two or more times _in a
@@ -64,7 +73,9 @@ countValid = todo
 --   repeated [1,2,1,2,3,3] ==> Just 3
 
 repeated :: Eq a => [a] -> Maybe a
-repeated = todo
+repeated [] = Nothing
+repeated (_:[]) = Nothing
+repeated (x:y:xs) = if x == y then Just x else repeated (y:xs)
 
 ------------------------------------------------------------------------------
 -- Ex 5: A laboratory has been collecting measurements. Some of the
@@ -86,7 +97,11 @@ repeated = todo
 --     ==> Left "no data"
 
 sumSuccess :: [Either String Int] -> Either String Int
-sumSuccess = todo
+sumSuccess [] = Left "no data"
+sumSuccess ((Left _):xs) = sumSuccess xs
+sumSuccess ((Right x):xs) = case sumSuccess xs of
+  Left _ -> Right x
+  Right y -> Right (x+y)
 
 ------------------------------------------------------------------------------
 -- Ex 6: A combination lock can either be open or closed. The lock
@@ -108,30 +123,33 @@ sumSuccess = todo
 --   isOpen (open "0000" (lock (changeCode "0000" (open "1234" aLock)))) ==> True
 --   isOpen (open "1234" (lock (changeCode "0000" (open "1234" aLock)))) ==> False
 
-data Lock = LockUndefined
+data Lock = Lock Bool String
   deriving Show
 
 -- aLock should be a locked lock with the code "1234"
 aLock :: Lock
-aLock = todo
+aLock = Lock False "1234"
 
 -- isOpen returns True if the lock is open
 isOpen :: Lock -> Bool
-isOpen = todo
+isOpen (Lock status _) = status
 
 -- open tries to open the lock with the given code. If the code is
 -- wrong, nothing happens.
 open :: String -> Lock -> Lock
-open = todo
+open _ (Lock True code) = Lock True code
+open entryCode (Lock False code) = Lock (entryCode == code) code
 
 -- lock closes a lock. If the lock is already closed, nothing happens.
 lock :: Lock -> Lock
-lock = todo
+lock (Lock False code) = Lock False code
+lock (Lock True code) = Lock False code
 
 -- changeCode changes the code of an open lock. If the lock is closed,
 -- nothing happens.
 changeCode :: String -> Lock -> Lock
-changeCode = todo
+changeCode newCode (Lock True _) = Lock True newCode
+changeCode _ (Lock False code) = Lock False code
 
 ------------------------------------------------------------------------------
 -- Ex 7: Here's a type Text that just wraps a String. Implement an Eq
@@ -149,10 +167,18 @@ changeCode = todo
 data Text = Text String
   deriving Show
 
+sanitize :: String -> String
+sanitize [] = []
+sanitize (x:xs)
+ | isSpace x = sanitize xs
+ | otherwise = [x] ++ sanitize xs
+
+instance Eq Text where
+ (Text x) == (Text y) = (sanitize x) == (sanitize y)
 
 ------------------------------------------------------------------------------
 -- Ex 8: We can represent functions or mappings as lists of pairs.
--- For example the list [("bob",13),("mary",8)] means that "bob" maps
+-- For example the  list [("bob",13),("mary",8)] means that "bob" maps
 -- to 13 and "mary" maps to 8.
 --
 -- Implement _composition_ for mappings like this. You compose two
