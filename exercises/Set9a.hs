@@ -15,6 +15,7 @@ import Data.List
 import Data.Ord
 
 import Mooc.Todo
+import qualified Data.Map as Map
 
 ------------------------------------------------------------------------------
 -- Ex 1: Implement a function workload that takes in the number of
@@ -174,7 +175,7 @@ sanitize (x:xs)
  | otherwise = [x] ++ sanitize xs
 
 instance Eq Text where
- (Text x) == (Text y) = (sanitize x) == (sanitize y)
+ (Text x) == (Text y) = sanitize x == sanitize y
 
 ------------------------------------------------------------------------------
 -- Ex 8: We can represent functions or mappings as lists of pairs.
@@ -207,8 +208,14 @@ instance Eq Text where
 --     compose [("a","alpha"),("b","beta"),("c","gamma")] [("alpha",1),("beta",2),("omicron",15)]
 --       ==> [("a",1),("b",2)]
 
+
 compose :: (Eq a, Eq b) => [(a,b)] -> [(b,c)] -> [(a,c)]
-compose = todo
+-- compose l1 l2 = [(key, lookupValue) | (key, value) <- l1, let lookupValue = lookup value l2, lookupValue /= Nothing]
+compose l1 l2 = foldr (\(key, value) acc -> case (lookup value l2) of
+                         Just content -> acc ++ [(key, content)]
+                         Nothing -> acc)
+                []
+                l1
 
 ------------------------------------------------------------------------------
 -- Ex 9: Reorder a list using a list of indices.
