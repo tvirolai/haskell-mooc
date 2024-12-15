@@ -13,6 +13,7 @@ module Set9a where
 import Data.Char
 import Data.List
 import Data.Ord
+import Data.List (sortOn)
 
 import Mooc.Todo
 import qualified Data.Map as Map
@@ -259,4 +260,5 @@ multiply :: Permutation -> Permutation -> Permutation
 multiply p q = map (\i -> p !! (q !! i)) (identity (length p))
 
 permute :: Permutation -> [a] -> [a]
-permute = todo
+permute p list = map (\(i1,i2) -> list!!i2) indices
+  where indices = sortOn fst $ zip p [0..(length p)-1]
