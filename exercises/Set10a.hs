@@ -78,7 +78,8 @@ deal players cards = zip cards (cycle players)
 
 
 averages :: [Double] -> [Double]
-averages = todo
+averages [] = []
+averages x = todo
 
 ------------------------------------------------------------------------------
 -- Ex 5: Given two lists, xs and ys, and an element z, generate an
@@ -96,7 +97,7 @@ averages = todo
 --   take 10 (alternate [1,2] [3,4,5] 0) ==> [1,2,0,3,4,5,0,1,2,0]
 
 alternate :: [a] -> [a] -> a -> [a]
-alternate xs ys z = todo
+alternate xs ys z = cycle (xs ++ [z] ++ ys ++ [z])
 
 ------------------------------------------------------------------------------
 -- Ex 6: Check if the length of a list is at least n. Make sure your
@@ -108,7 +109,7 @@ alternate xs ys z = todo
 --   lengthAtLeast 10 [0..]  ==> True
 
 lengthAtLeast :: Int -> [a] -> Bool
-lengthAtLeast = todo
+lengthAtLeast target l = (length $ take target l) == target
 
 ------------------------------------------------------------------------------
 -- Ex 7: The function chunks should take in a list, and a number n,
@@ -126,7 +127,10 @@ lengthAtLeast = todo
 --   take 4 (chunks 3 [0..]) ==> [[0,1,2],[1,2,3],[2,3,4],[3,4,5]]
 
 chunks :: Int -> [a] -> [[a]]
-chunks = todo
+chunks _ [] = []
+chunks size list
+  | lengthAtLeast size list = (take size list):(chunks size (tail list))
+  | otherwise = []
 
 ------------------------------------------------------------------------------
 -- Ex 8: Define a newtype called IgnoreCase, that wraps a value of
@@ -142,7 +146,14 @@ chunks = todo
 --   ignorecase "abC" == ignorecase "ABc"  ==>  True
 --   ignorecase "acC" == ignorecase "ABc"  ==>  False
 
-ignorecase = todo
+newtype IgnoreCase = IgnoreCase String
+  deriving Show
+
+instance Eq IgnoreCase where
+  (==) (IgnoreCase x) (IgnoreCase y) = map toLower x == map toLower y
+
+ignorecase :: String -> IgnoreCase
+ignorecase x = IgnoreCase x
 
 ------------------------------------------------------------------------------
 -- Ex 9: Here's the Room type and some helper functions from the
