@@ -75,11 +75,13 @@ deal players cards = zip cards (cycle players)
 --   averages [3,2,1] ==> [3.0,2.5,2.0]
 --   take 10 (averages [1..]) ==> [1.0,1.5,2.0,2.5,3.0,3.5,4.0,4.5,5.0,5.5]
 
-
-
 averages :: [Double] -> [Double]
 averages [] = []
-averages x = todo
+averages x =
+  let runningsums = drop 1 $ scanl (+) 0.0 x
+      indices = [1.0..]
+  in
+    zipWith (/) runningsums indices
 
 ------------------------------------------------------------------------------
 -- Ex 5: Given two lists, xs and ys, and an element z, generate an
@@ -196,5 +198,9 @@ play room [] = [describe room]
 play room (d:ds) = case move room d of Nothing -> [describe room]
                                        Just r -> describe room : play r ds
 
+maze1 = Room "Maze" [("Left", maze2), ("Right", maze3)]
+maze2 = Room "Deeper in the maze" [("Left", maze3), ("Right", maze1)]
+maze3 = Room "Elsewhere in the maze" [("Left", maze1), ("Right", maze2)]
+
 maze :: Room
-maze = todo
+maze = maze1
